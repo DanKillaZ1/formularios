@@ -1,72 +1,64 @@
-// import fetch from 'node-fetch'
+const API_URL = 'https://jsonplaceholder.typicode.com/posts';
 
-let _data = {
-    title: "teste de envio",
-    body: "loren ipsum sit dolor amet consectur",
-    userId: 5
+async function setPost(data) {
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json; charset=UTF-8'
+            }
+        });
+        const responseData = await response.json();
+        console.log(responseData);
+    } catch (error) {
+        console.error(error);
+    }
 }
 
-const postContainer = document.getElementById('posts')
-let postMarkup = ''
-let postLength = 0
-
-// Cadastra um post
-function setPost(data) {
-
-    fetch('https://jsonplaceholder.typicode.com/posts', {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-            'Content-Type' : 'application/json; charset=UTF-8'
-        }
-    })
-    .then( response => response.json())
-    .then( data => console.log(data))
-    .catch(error => console.error(error))   
+async function getPosts() {
+    try {
+        const response = await fetch(API_URL, {
+            headers: {
+                'Content-Type': 'application/json; charset=UTF-8'
+            }
+        });
+        const data = await response.json();
+        const postLength = data.length;
+        console.log(postLength);
+    } catch (error) {
+        console.error(error);
+    }
 }
 
-// Solicita todos os posts
-function getPosts() {
-    fetch('https://jsonplaceholder.typicode.com/posts/', {
-        headers: {
-            'Content-Type' : 'application/json; charset=UTF-8'
-        }
-    })
-    .then( response => response.json())
-    .then( data => { 
-        postLength = data.length
-        console.log(postLength)
-     })
-    .catch(error => console.error(error))  
-}
-
-// Solicita um post por ID
-function getPost(id) {
-    fetch('https://jsonplaceholder.typicode.com/posts/' + id, {
-        headers: {
-            'Content-Type' : 'application/json; charset=UTF-8'
-        }
-    })
-    .then( response => response.json())
-    .then( post => { 
-            postMarkup += `
-                <div class="posts-item" id="post-${post.id}">
-                    <h3>${post.title}</h3>
-                    <p>${post.body}</p>
-                </div>
-            `
-        postContainer.innerHTML = postMarkup
-     })
-    .catch(error => console.error(error))  
+async function getPost(id) {
+    try {
+        const response = await fetch(`${API_URL}/${id}`, {
+            headers: {
+                'Content-Type': 'application/json; charset=UTF-8'
+            }
+        });
+        const post = await response.json();
+        const postMarkup = `
+            <div class="posts-item" id="post-${post.id}">
+                <h3>${post.title}</h3>
+                <p>${post.body}</p>
+            </div>
+        `;
+        postContainer.innerHTML += postMarkup;
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 let postIndex = 1;
-getPosts()
-getPost(postIndex)
+getPosts();
+getPost(postIndex);
 
-const loadPost = document.getElementById('loadPost')
+const loadPost = document.getElementById('loadPost');
 
-loadPost.addEventListener('click', function(e) {
-    if(postIndex < postLength)
-        getPost(postIndex += 1)
-})
+loadPost.addEventListener('click', function (e) {
+    if (postIndex < postLength) {
+        getPost(++postIndex);
+    }
+});
